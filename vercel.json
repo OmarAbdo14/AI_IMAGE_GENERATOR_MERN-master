@@ -1,0 +1,21 @@
+{
+    "projects": {
+        "backend": {
+            "src": "backend/index.js",
+            "use": "@vercel/node"
+        },
+        "frontend": {
+            "src": "frontend/",
+            "use": "@vercel/static-build",
+            "config": {
+                "distDir": "build"
+            }
+        }
+    },
+    "rewrites": [
+        {
+        "source": "/api/(.*)",
+        "destination": "/backend/index.js"
+        }
+    ]
+}

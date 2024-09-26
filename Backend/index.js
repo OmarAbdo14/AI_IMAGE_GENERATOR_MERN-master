@@ -1,24 +1,27 @@
-import express from "express";
-import * as dotenv from "dotenv";
-import cors from "cors";
-import mongoose from "mongoose";
-import generateImageRoute from "./routes/GenerateImage.js";
-import posts from "./routes/Posts.js";
+import express from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import generateImageRoute from './routes/GenerateImage.js';
+import posts from './routes/Posts.js';
 
 dotenv.config();
 
 const app = express();
+
+// Middleware
 app.use(cors());
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true })); // for form data
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/generateImage/", generateImageRoute);
-app.use("/api/post/", posts);
+// Routes
+app.use('/api/generateImage/', generateImageRoute);
+app.use('/api/post/', posts);
 
-// error handler
+// Error handler middleware
 app.use((err, req, res, next) => {
   const status = err.status || 500;
-  const message = err.message || "Something went wrong";
+  const message = err.message || 'Something went wrong';
   return res.status(status).json({
     success: false,
     status,
@@ -26,30 +29,30 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.get("/", async (req, res) => {
+// Basic root route for testing
+app.get('/', (req, res) => {
   res.status(200).json({
-    message: "Hello developers from GFG",
+    message: 'Hello developers from GFG',
   });
 });
 
+// MongoDB connection function
 const connectDB = () => {
-  mongoose.set("strictQuery", true);
+  mongoose.set('strictQuery', true);
   mongoose
-    .connect(process.env.MONGODB_URL)
-    .then(() => console.log("Connected to Mongo DB"))
+    .connect(process.env.MONGODB_URL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(() => console.log('Connected to MongoDB'))
     .catch((err) => {
-      console.error("failed to connect with mongo");
+      console.error('Failed to connect to MongoDB');
       console.error(err);
     });
 };
 
-const startServer = async () => {
-  try {
-    connectDB();
-    app.listen(8080, () => console.log("Server started on port 8080"));
-  } catch (error) {
-    console.log(error);
-  }
-};
+// Connect to MongoDB
+connectDB();
 
-startServer();
+// Export the app (Vercel will handle port binding)
+export default app;
